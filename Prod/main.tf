@@ -28,7 +28,6 @@ locals {
   cluster_version = var.cluster_version
   region          = var.region_name
   vpc_cidr        = var.vpc_cidr
-  # env_name        = var.env_name
 
   azs = slice(data.aws_availability_zones.available.names, 0, 3)
 
@@ -71,6 +70,7 @@ module "eks_blueprints" {
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnets
 
+  # SPOT: https://aws.amazon.com/cn/blogs/china/eks-use-spot-instance-best-practice/?nc1=b_nrp
   managed_node_groups = {
     t3 = {
       node_group_name = "managed-ondemand"
