@@ -20,6 +20,11 @@ data "aws_eks_cluster_auth" "this" {
   name = module.eks_blueprints.eks_cluster_id
 }
 
+data "aws_acm_certificate" "issued" {
+  domain   = var.acm_certificate_domain
+  statuses = ["ISSUED"]
+}
+
 data "aws_availability_zones" "available" {}
 
 locals {
@@ -92,6 +97,7 @@ module "eks_blueprints_kubernetes_addons" {
   eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
   eks_oidc_provider    = module.eks_blueprints.oidc_provider
   eks_cluster_version  = module.eks_blueprints.eks_cluster_version
+  eks_cluster_domain   = var.eks_cluster_domain
 
   # EKS Managed Add-ons
   enable_amazon_eks_vpc_cni            = true
@@ -128,6 +134,48 @@ module "eks_blueprints_kubernetes_addons" {
   }
   # TODO - requires dependency on `cert-manager` for namespace
   # enable_cert_manager_csi_driver = true
+
+  enable_argocd = true
+  argocd_applications = {
+    workloads = {
+      path               = "envs/dev"
+      repo_url           = "https://github.com/aws-samples/eks-blueprints-workloads.git"
+      target_revision    = "main"
+      add_on_application = false
+      values = {
+        spec = {
+          source = {
+            repoURL        = "https://github.com/aws-samples/eks-blueprints-workloads.git"
+            targetRevision = "main"
+          }
+          blueprint   = "terraform"
+          clusterName = module.eks_blueprints.eks_cluster_id
+          env         = "dev"
+          ingress = {
+            type           = "alb"
+            host           = var.eks_cluster_domain
+            route53_weight = "100" # <-- You can control the weight of the route53 weighted records between clusters
+          }
+        }
+      }
+    }
+  }
+
+  enable_ingress_nginx = true
+  ingress_nginx_helm_config = {
+    values = [templatefile("${path.module}/nginx-values.yaml", {
+      hostname     = var.eks_cluster_domain
+      ssl_cert_arn = data.aws_acm_certificate.issued.arn
+    })]
+  }
+
+  enable_external_dns                 = true
+  external_dns_helm_config = {
+    values = [templatefile("${path.module}/external_dns-values.yaml", {
+      txtOwnerId   = local.name
+      zoneIdFilter = var.eks_cluster_domain
+    })]
+  }
 
   #---------------------------------------
   # ENABLE EMR ON EKS

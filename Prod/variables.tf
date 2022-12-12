@@ -28,3 +28,15 @@ variable "env_name" {
   type        = string
   default     = "NaN"
 }
+
+variable "eks_cluster_domain" {
+  type        = string
+  description = "Route53 domain for the cluster"
+  default     = "vimmer.link"
+}
+
+variable "acm_certificate_domain" {
+  type        = string
+  description = "Route53 certificate domain"
+  default     = "*.vimmer.link"
+}
