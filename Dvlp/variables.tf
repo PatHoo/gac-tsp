@@ -18,7 +18,7 @@ variable "cluster_version" {
 
 # https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
 variable "vpc_cidr" {
-  description = "Cluster Version"
+  description = "VPC CIDR"
   type        = string
   default     = "10.0.0.0/16"
 }

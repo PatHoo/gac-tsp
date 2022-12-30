@@ -108,7 +108,7 @@ module "eks_blueprints_kubernetes_addons" {
   # Add-ons
   enable_aws_load_balancer_controller = true
   enable_metrics_server               = false
-  enable_aws_cloudwatch_metrics       = true
+  enable_aws_cloudwatch_metrics       = false
   enable_kubecost                     = false
   enable_gatekeeper                   = false
 
@@ -135,7 +135,7 @@ module "eks_blueprints_kubernetes_addons" {
   # TODO - requires dependency on `cert-manager` for namespace
   # enable_cert_manager_csi_driver = true
 
-  enable_argocd = true
+  enable_argocd = false
   argocd_applications = {
     workloads = {
       path               = "envs/dev"
@@ -180,7 +180,7 @@ module "eks_blueprints_kubernetes_addons" {
   #---------------------------------------
   # ENABLE EMR ON EKS
   #---------------------------------------
-  enable_emr_on_eks = true
+  enable_emr_on_eks = false
   # emr_on_eks_teams = {
   #   emr-team-a = {
   #     namespace               = "emr-data-team-a"
