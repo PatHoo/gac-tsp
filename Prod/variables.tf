@@ -7,7 +7,7 @@ variable "region_name" {
 variable "cluster_name" {
   description = "Name of cluster"
   type        = string
-  default     = "TSP"
+  default     = "K3S"
 }
 
 variable "cluster_version" {
